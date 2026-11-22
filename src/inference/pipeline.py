@@ -22,6 +22,7 @@ from . import expectations as EXP
 from . import invariants as INV
 from . import memory as M
 from . import queueing as Q
+from . import report as R
 from . import scaling as SC
 from . import space as SP
 from . import visualize as VIS
@@ -465,7 +466,10 @@ def run_pipeline(cfg: dict[str, Any], out_dir: str | Path | None = None,
     products["timings.json"] = {"timings": timings,
                                 "total_wall_s": sum(timings.values())}
 
-    md, html = __import__("inference.report", fromlist=["render"]).render(products)
+    # ⚠️ 正常相对导入即可：`report` 只依赖 `cost`，与 `pipeline` 没有环。
+    #    `__import__(..., fromlist=...)` 的写法每次 run 都重新解析一次模块名，
+    #    还会让静态检查看不到这条依赖。
+    md, html = R.render(products)
     products["report.md"] = md
     products["report.html"] = html
 
