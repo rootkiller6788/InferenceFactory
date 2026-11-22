@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 from typing import Any
 
@@ -33,44 +34,47 @@ class ModelSpec:
     kv_dtype_bits: int
 
     # ---------------------------------------------------------------- 结构
-    @property
+    # ⚠️ 全用 `cached_property`：这些值只由**不可变字段**决定，而
+    #    `layerwise_*` 的逐层循环会反复读 `ffn_size` / `params_per_layer`
+    #    （互校 891 组 × 层数）。重算一次是乘法，重算十万次就是剖面里的热点。
+    @cached_property
     def ffn_hidden(self) -> int:
         # ⚠️ `round` 而不是 `int(...)`：SwiGLU 的 intermediate size 通常是
         #    先乘后取到 256 的倍数。这里取 `round` 保证**整数且确定**
         #    （浮点 `ffn_mult * hidden` 直接 `int()` 会因舍入方向丢 1）。
         return int(round(self.ffn_mult * self.hidden))
 
-    @property
+    @cached_property
     def q_size(self) -> int:
         return self.hidden * (self.n_heads * self.head_dim)
 
-    @property
+    @cached_property
     def kv_size(self) -> int:
         return self.hidden * (self.n_kv_heads * self.head_dim)
 
-    @property
+    @cached_property
     def o_size(self) -> int:
         return (self.n_heads * self.head_dim) * self.hidden
 
-    @property
+    @cached_property
     def ffn_size(self) -> int:
         # SwiGLU：gate / up / down 三个矩阵
         return 3 * self.hidden * self.ffn_hidden
 
-    @property
+    @cached_property
     def embed_size(self) -> int:
         return self.vocab * self.hidden
 
-    @property
+    @cached_property
     def params_per_layer(self) -> int:
         return self.q_size + 2 * self.kv_size + self.o_size + self.ffn_size
 
-    @property
+    @cached_property
     def params(self) -> int:
         head = 0 if self.tie_embeddings else self.embed_size
         return self.n_layers * self.params_per_layer + self.embed_size + head
 
-    @property
+    @cached_property
     def active_params(self) -> int:
         """参与前向的权重数（dense ⇒ 全部）。"""
         return self.params
