@@ -74,7 +74,6 @@ def _rel(a: float, b: float) -> float:
 
 
 # ===================================================================== 门槛
-@staticmethod
 def _obs_matrix_gap(p: dict[str, Any], c: dict[str, Any]) -> float:
     return float(p["matrix.json"]["matrix_gap"])
 
@@ -162,8 +161,10 @@ def _obs_kv_share(p: dict[str, Any], c: dict[str, Any]) -> float:
 
 
 def _obs_bound_variety(p: dict[str, Any], c: dict[str, Any]) -> float:
-    kinds = {cell["readings"]["bound_decode"] for cell in _feas(p)}
-    kinds |= {cell["readings"]["bound_prefill"] for cell in _feas(p)}
+    kinds: set[str] = set()
+    for cell in _feas(p):
+        kinds.add(cell["readings"]["bound_decode"])
+        kinds.add(cell["readings"]["bound_prefill"])
     return float(len(kinds))
 
 
@@ -344,20 +345,18 @@ def _c_gap(p, c, ms, hs):
 
 @_case("matrix_has_no_duplicate_cells", "没有重复的格（同一部署单元 + 同一配置出现两次）")
 def _c_dup(p, c, ms, hs):
-    seen = {}
+    seen: set[tuple[str, str]] = set()
     dup = []
     for cell in _cells(p):
         k = (cell["deployment"], cell["config_id"])
         if k in seen:
             dup.append(str(k))
-        seen[k] = 1
+        seen.add(k)
     return not dup, ("无重复" if not dup else f"{len(dup)} 个重复：{dup[:3]}")
 
 
 @_case("every_cell_carries_a_reason", "每一格都有一个**非空**的原因字段")
 def _c_reason(p, c, ms, hs):
-    bad = [x["config_id"] for x in _cells(p)
-           if not x.get("reason") or x["reason"] != ("ok" if x["feasible"] else x["reason"])]
     bad = [x["config_id"] for x in _cells(p) if not x.get("reason")]
     return not bad, (f"{len(_cells(p))} 格都有原因" if not bad else f"{len(bad)} 格没有")
 
