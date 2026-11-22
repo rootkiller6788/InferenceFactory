@@ -1,0 +1,12 @@
+{
+ "name": "rtx4060-8g",
+ "has_gpu": true,
+ "gpu_peak_flops": 15200000000000.0,
+ "gpu_bytes": 8589934592.0,
+ "gpu_reserved_bytes": 314572800.0,
+ "gpu_bw": 272000000000.0,
+ "pcie_bw": 12000000000.0,
+ "cpu_peak_flops": 350000000000.0,
+ "ram_bytes": 34359738368.0,
+ "ram_bw": 60000000000.0
+}

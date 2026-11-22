@@ -1,0 +1,172 @@
+{
+ "acceptance": {
+  "matrix_gap_max": 0,
+  "max_crosscheck_rel_err": 1e-12,
+  "max_queue_sim_abs_err": 0.05,
+  "min_backend_wins": 2,
+  "min_batch_speedup": 3.0,
+  "min_context_tpot_growth": 1.2,
+  "min_feasible_cells": 100,
+  "min_infeasible_reasons": 3,
+  "min_kv_share_peak": 0.5,
+  "min_models_with_oom": 1,
+  "min_n_cells": 1000,
+  "min_p99_growth_with_load": 2.0,
+  "min_pareto_points": 5,
+  "min_roofline_bound_variety": 2,
+  "min_slo_exclusions": 1
+ },
+ "axes": {
+  "arrival": [
+   0.25,
+   1.0,
+   4.0
+  ],
+  "backend": [
+   "pytorch-eager",
+   "vllm-paged",
+   "llamacpp-cpu",
+   "llamacpp-hybrid"
+  ],
+  "batch": [
+   1,
+   8,
+   64
+  ],
+  "context": [
+   2048,
+   16384,
+   131072
+  ],
+  "quant": [
+   "fp16",
+   "int8",
+   "int4"
+  ]
+ },
+ "backends": {
+  "llamacpp-cpu": {
+   "batching": "static",
+   "continuous": false,
+   "cpu_eff": 0.45,
+   "device": "cpu",
+   "flash": false,
+   "framework_bytes": 40000000,
+   "kernels_per_layer": 8,
+   "kv_util": 0.9,
+   "launch_overhead_us": 2.0,
+   "scheduler_overhead_ms": 0.0,
+   "slots_fixed": 0,
+   "slots_mode": "batch",
+   "supports_quant": [
+    "fp16",
+    "int8",
+    "int4"
+   ]
+  },
+  "llamacpp-hybrid": {
+   "batching": "static",
+   "continuous": false,
+   "cpu_eff": 0.45,
+   "device": "hybrid",
+   "flash": true,
+   "framework_bytes": 320000000,
+   "gpu_eff": 0.6,
+   "kv_util": 0.85,
+   "launch_overhead_us": 10.0,
+   "offload": 0.6,
+   "scheduler_overhead_ms": 0.2,
+   "slots_fixed": 0,
+   "slots_mode": "batch",
+   "supports_quant": [
+    "int8",
+    "int4"
+   ]
+  },
+  "pytorch-eager": {
+   "batching": "static",
+   "continuous": false,
+   "device": "gpu",
+   "flash": false,
+   "framework_bytes": 550000000,
+   "gpu_eff": 0.55,
+   "kv_util": 0.6,
+   "launch_overhead_us": 18.0,
+   "scheduler_overhead_ms": 0.0,
+   "slots_fixed": 0,
+   "slots_mode": "batch",
+   "supports_quant": [
+    "fp16",
+    "int8"
+   ]
+  },
+  "vllm-paged": {
+   "batching": "continuous",
+   "continuous": true,
+   "device": "gpu",
+   "flash": true,
+   "framework_bytes": 900000000,
+   "gpu_eff": 0.85,
+   "kv_util": 0.95,
+   "launch_overhead_us": 6.0,
+   "scheduler_overhead_ms": 0.5,
+   "slots_fixed": 256,
+   "slots_mode": "fixed",
+   "supports_quant": [
+    "fp16",
+    "int8",
+    "int4"
+   ]
+  }
+ },
+ "data": {
+  "hardware_dir": "data/hardware",
+  "models_dir": "data/models"
+ },
+ "objectives": {
+  "footprint": {
+   "direction": -1,
+   "key": "peak_frac"
+  },
+  "latency": {
+   "direction": -1,
+   "key": "p99_ms"
+  },
+  "throughput": {
+   "direction": 1,
+   "key": "tokens_per_s"
+  }
+ },
+ "quant": {
+  "fp16": {
+   "compute_eff_scale": 1.0,
+   "kv_bits": 16,
+   "weight_bits": 16
+  },
+  "int4": {
+   "compute_eff_scale": 0.92,
+   "kv_bits": 4,
+   "weight_bits": 4
+  },
+  "int8": {
+   "compute_eff_scale": 0.96,
+   "kv_bits": 8,
+   "weight_bits": 8
+  }
+ },
+ "queue": {
+  "max_batch_wait_s": 0.05,
+  "n_requests": 4000,
+  "rho_epsilon": 1e-09,
+  "warmup_frac": 0.4
+ },
+ "seed": 20261003,
+ "slo": {
+  "p99_ms": 2000.0,
+  "tpot_ms": 120.0
+ },
+ "workload": {
+  "output_tokens": 128,
+  "prompt_tokens": 512
+ }
+}

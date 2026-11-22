@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inference"
+version = "1.0.0"
+description = "InferenceFactory：Model → Backend → Benchmark → 部署 的扇出-收拢（第四形态：部署配置空间）"
+requires-python = ">=3.12"
+# ⚠️ **核心路径零第三方依赖**：只用标准库。本项目是**数字孪生** ——
+#    环境里没有 torch / vLLM / llama.cpp，也没有 GPU，所以「这个 backend 有多快」
+#    由 roofline + 排队论**算出来**，不是测出来。产物里凡是「测量」性质的字段，
+#    都要能被一个白名单钉死（见 `invariants._MODEL_TIME_KEYS`）。
+dependencies = []
+
+[tool.setuptools]
+packages = ["inference"]
+package-dir = { "" = "src" }

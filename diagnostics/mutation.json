@@ -1,0 +1,265 @@
+{
+ "n_cases": 51,
+ "n_proven": 51,
+ "n_generic": 39,
+ "n_targeted": 12,
+ "seed": 20261003,
+ "max_mut": 60,
+ "results": [
+  {
+   "name": "adversarial_cases_all_ran_with_their_inputs_present",
+   "killer": "删掉 matrix.json（= 对抗层该读的产物不在位）",
+   "kind": "targeted"
+  },
+  {
+   "name": "analytic_and_layerwise_agree_on_bytes",
+   "killer": "让逐层累加的**访存量**与闭式差 1（= 两条独立实现漂移）",
+   "kind": "source"
+  },
+  {
+   "name": "analytic_and_layerwise_agree_on_flops",
+   "killer": "让逐层累加的**访存量**与闭式差 1（= 两条独立实现漂移）",
+   "kind": "source"
+  },
+  {
+   "name": "artifact_checksum_matches_its_own_body",
+   "killer": "改数 artifact.json:artifact.json.artifacts[0].artifact.expected.p99_ms -> -1572.1132243660131",
+   "kind": "generic"
+  },
+  {
+   "name": "axes_are_non_empty_and_have_no_duplicates",
+   "killer": "清空轴 cfg.axes.backend",
+   "kind": "cfg"
+  },
+  {
+   "name": "best_p99_is_the_min_over_feasible_cells",
+   "killer": "删产物 compare.json",
+   "kind": "generic"
+  },
+  {
+   "name": "best_throughput_is_the_max_over_feasible_cells",
+   "killer": "删产物 compare.json",
+   "kind": "generic"
+  },
+  {
+   "name": "config_round_trips_through_disk",
+   "killer": "清空轴 cfg.axes.backend",
+   "kind": "cfg"
+  },
+  {
+   "name": "curve_axes_are_strictly_increasing",
+   "killer": "改数 scaling.json:scaling.json.series[16].curves.context[6].x -> 0",
+   "kind": "generic"
+  },
+  {
+   "name": "decode_flops_grow_with_context",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "decode_step_time_is_monotone_in_batch",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "deploy_rows_recheck_the_slo_against_the_artifact",
+   "killer": "删产物 deploy.json",
+   "kind": "generic"
+  },
+  {
+   "name": "effective_batch_never_exceeds_the_configured_batch",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "erlang_b_is_in_the_unit_interval",
+   "killer": "把 Erlang-B 改成常数 1.7（= 概率跑到 [0,1] 外）",
+   "kind": "source"
+  },
+  {
+   "name": "erlang_c_is_at_least_erlang_b",
+   "killer": "把 Erlang-B 改成常数 1.7（= 概率跑到 [0,1] 外）",
+   "kind": "source"
+  },
+  {
+   "name": "every_backend_in_the_axis_is_declared_in_the_catalog",
+   "killer": "从 cfg.backends 删掉轴里有的 `pytorch-eager`",
+   "kind": "cfg"
+  },
+  {
+   "name": "every_cell_carries_a_reason",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "every_decision_is_a_feasible_cell",
+   "killer": "删产物 compare.json",
+   "kind": "generic"
+  },
+  {
+   "name": "every_decision_meets_the_slo",
+   "killer": "删产物 compare.json",
+   "kind": "generic"
+  },
+  {
+   "name": "every_series_has_all_three_curves",
+   "killer": "删产物 scaling.json",
+   "kind": "generic"
+  },
+  {
+   "name": "feasible_cells_fit_the_device_budget",
+   "killer": "改数 matrix.json:matrix.json.cells[174].memory.budget_bytes -> -68719476737.0",
+   "kind": "generic"
+  },
+  {
+   "name": "feasible_cells_have_every_reading",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "infeasible_cells_carry_no_readings",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "kv_bytes_is_monotone_in_context",
+   "killer": "改数 matrix.json:matrix.json.cells[167].context -> 0",
+   "kind": "generic"
+  },
+  {
+   "name": "matrix_has_no_duplicate_cells",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "matrix_has_no_gap",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "memory_feasibility_is_downward_closed_in_batch",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "memory_feasibility_is_downward_closed_in_context",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "no_gpu_hardware_rejects_gpu_backends",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "no_undeclared_time_key_in_the_versioned_products",
+   "killer": "往读数里塞一个 `wall_clock_s`（= 实测耗时混进模型预测，这正是这个判据存在的理由）",
+   "kind": "targeted"
+  },
+  {
+   "name": "oom_cells_really_exceed_the_device_budget",
+   "killer": "改数 matrix.json:matrix.json.cells[1663].memory.gpu_bytes -> 0.0",
+   "kind": "generic"
+  },
+  {
+   "name": "p99_covers_at_least_the_service_time",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "p99_is_monotone_in_arrival",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "paged_backends_do_not_reserve_the_whole_context",
+   "killer": "改数 matrix.json:matrix.json.cells[1066].batch -> 0",
+   "kind": "generic"
+  },
+  {
+   "name": "pareto_front_contains_no_dominated_cell",
+   "killer": "删产物 compare.json",
+   "kind": "generic"
+  },
+  {
+   "name": "peak_memory_is_monotone_in_batch",
+   "killer": "改数 matrix.json:matrix.json.cells[1673].batch -> 0",
+   "kind": "generic"
+  },
+  {
+   "name": "peak_memory_is_monotone_in_context",
+   "killer": "改数 matrix.json:matrix.json.cells[1489].memory.peak_bytes -> 0.0",
+   "kind": "generic"
+  },
+  {
+   "name": "prefill_does_more_work_than_one_decode_step",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "protocol_digest_changes_when_the_axes_change",
+   "killer": "清空轴 cfg.axes.backend",
+   "kind": "cfg"
+  },
+  {
+   "name": "protocol_digest_is_stable",
+   "killer": "清空轴 cfg.axes.backend",
+   "kind": "cfg"
+  },
+  {
+   "name": "renderers_are_pure_functions_of_the_products",
+   "killer": "删产物 acceptance.json",
+   "kind": "generic"
+  },
+  {
+   "name": "roofline_bound_names_the_larger_term",
+   "killer": "改数 matrix.json:matrix.json.cells[418].timing.decode.memory_s -> -1.011258910117647",
+   "kind": "generic"
+  },
+  {
+   "name": "roofline_time_is_at_least_both_terms",
+   "killer": "改数 matrix.json:matrix.json.cells[231].timing.prefill.seconds -> 0.0",
+   "kind": "generic"
+  },
+  {
+   "name": "scaling_point_count_matches_the_declared_grids",
+   "killer": "删产物 scaling.json",
+   "kind": "generic"
+  },
+  {
+   "name": "static_batching_wait_is_capped",
+   "killer": "改数 matrix.json:matrix.json.cells[1002].readings.wait_batch_s -> 1.0",
+   "kind": "generic"
+  },
+  {
+   "name": "tpot_is_monotone_in_context",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "unstable_cells_are_marked_infeasible",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "unsupported_quant_is_marked_not_silently_computed",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "utilization_is_monotone_in_arrival",
+   "killer": "删产物 matrix.json",
+   "kind": "generic"
+  },
+  {
+   "name": "version_digest_covers_every_declared_file",
+   "killer": "删产物 version.json",
+   "kind": "generic"
+  },
+  {
+   "name": "weight_bytes_is_monotone_in_quant_bits",
+   "killer": "让权重占用随位宽**变大而变小**（= 反单调）",
+   "kind": "source"
+  }
+ ]
+}

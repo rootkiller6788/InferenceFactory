@@ -1,0 +1,13 @@
+{
+ "name": "dense-7b",
+ "family": "llama",
+ "n_layers": 32,
+ "hidden": 4096,
+ "n_heads": 32,
+ "n_kv_heads": 8,
+ "head_dim": 128,
+ "ffn_mult": 3.5,
+ "vocab": 32000,
+ "tie_embeddings": true,
+ "kv_dtype_bits": 16
+}

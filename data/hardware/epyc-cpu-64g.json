@@ -1,0 +1,7 @@
+{
+ "name": "epyc-cpu-64g",
+ "has_gpu": false,
+ "cpu_peak_flops": 2500000000000.0,
+ "ram_bytes": 68719476736.0,
+ "ram_bw": 204000000000.0
+}
