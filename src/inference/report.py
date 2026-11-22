@@ -14,8 +14,6 @@ from typing import Any
 
 from .cost import human_bytes
 
-_L: list[str] = []
-
 
 def render(products: dict[str, Any]) -> tuple[str, str]:
     md = _render_md(products)

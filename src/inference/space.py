@@ -42,12 +42,6 @@ def deployment_id(model: ModelSpec, hw: HardwareSpec) -> str:
     return f"{model.name}@{hw.name}"
 
 
-def enumerate_deployments(models: tuple[ModelSpec, ...],
-                          hardware: tuple[HardwareSpec, ...],
-                          ) -> list[tuple[ModelSpec, HardwareSpec]]:
-    return [(m, h) for m in models for h in hardware]
-
-
 def matrix_expected(models: tuple[ModelSpec, ...],
                     hardware: tuple[HardwareSpec, ...],
                     cfg: dict[str, Any]) -> int:

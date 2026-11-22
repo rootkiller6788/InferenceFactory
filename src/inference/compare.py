@@ -21,28 +21,6 @@ from .specs import HardwareSpec, ModelSpec
 from .space import deployment_id
 
 
-def _obj_keys(cfg: dict[str, Any]) -> tuple[str, ...]:
-    return tuple(cfg["objectives"].keys())
-
-
-def _better(a: dict[str, Any], b: dict[str, Any], cfg: dict[str, Any]) -> int:
-    """a 相对 b 在三目标上的比较：1 = 更好 / -1 = 更差 / 0 = 完全相等。"""
-    gt = lt = 0
-    for name, spec in cfg["objectives"].items():
-        k = spec["key"]
-        va, vb = a["readings"][k], b["readings"][k]
-        if va > vb:
-            gt += 1 if spec["direction"] > 0 else -1
-        elif va < vb:
-            lt += 1 if spec["direction"] > 0 else -1
-    better = gt - lt
-    if better > 0:
-        return 1
-    if better < 0:
-        return -1
-    return 0
-
-
 def dominates(a: dict[str, Any], b: dict[str, Any], cfg: dict[str, Any]) -> bool:
     """a 支配 b：所有目标不更差，且至少一个严格更好。"""
     objs = cfg["objectives"]
