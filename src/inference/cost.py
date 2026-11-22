@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -235,26 +234,6 @@ def seconds_of(work: Work, backend: dict[str, Any], quant: dict[str, Any],
 
 
 # --------------------------------------------------------------------- 拐点
-def batch_knee(weight_bytes: float, params: int,
-               peak_flops: float, eff: float, bw: float) -> float:
-    r"""batch 拐点 B\*：从 memory-bound 翻到 compute-bound 的那个 batch。
-
-    解 `2·W·B/(peak·eff) = weight_bytes/bw`（忽略 KV 项，因为拐点在小 C 处）
-    ⇒ `B* = weight_bytes·peak·eff / (2·W·bw)`。
-
-    ⚠️ 这个**闭式**必须能被矩阵里实测的「bound 翻转点」对上 —— 对不上就说明
-    roofline 与实测不是同一个模型（由对抗用例守）。
-    """
-    if params <= 0 or bw <= 0:
-        return float("inf")
-    return weight_bytes * peak_flops * eff / (2.0 * params * bw)
-
-
-def machine_knee(peak_flops: float, eff: float, bw: float) -> float:
-    """机器的拐点算术强度 `peak·eff/bw`（FLOP/byte）。"""
-    return peak_flops * eff / bw if bw > 0 else float("inf")
-
-
 def arithmetic_intensity(flops: float, bytes_: float) -> float:
     return flops / bytes_ if bytes_ > 0 else float("inf")
 
@@ -267,11 +246,3 @@ def human_bytes(n: float) -> str:
             break
         n /= 1024.0
     return f"{n:.2f} {unit}"
-
-
-def safe_div(a: float, b: float) -> float:
-    return a / b if b else float("inf")
-
-
-def log2_or_zero(x: float) -> float:
-    return math.log2(x) if x > 0 else 0.0
