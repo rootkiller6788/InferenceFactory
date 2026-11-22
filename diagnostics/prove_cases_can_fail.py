@@ -30,6 +30,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from inference import invariants as INV          # noqa: E402
+from inference.console import use_utf8_console   # noqa: E402
+
+use_utf8_console()
+
+from inference import specs as SP                # noqa: E402
 from inference import specs as SP                # noqa: E402
 from inference.config import load_config         # noqa: E402
 

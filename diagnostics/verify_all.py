@@ -9,6 +9,12 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(".").resolve()
+sys.path.insert(0, str(ROOT / "src"))
+
+from inference.console import use_utf8_console  # noqa: E402
+
+use_utf8_console()
+
 PY = sys.executable
 OUT = ROOT / "out"
 

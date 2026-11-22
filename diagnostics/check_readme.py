@@ -41,6 +41,12 @@ from collections.abc import Callable
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from inference.console import use_utf8_console  # noqa: E402
+
+use_utf8_console()
+
 README = ROOT / "README.md"
 
 #: 数字 token：前后不许紧贴字母或小数点

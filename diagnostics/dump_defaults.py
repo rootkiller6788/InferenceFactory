@@ -16,6 +16,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from inference.config import DEFAULTS, dump_config, load_config  # noqa: E402
+from inference.console import use_utf8_console  # noqa: E402
+
+use_utf8_console()
 
 target = ROOT / "configs" / "default.json"
 dump_config(DEFAULTS, target)
