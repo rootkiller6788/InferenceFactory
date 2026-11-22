@@ -13,6 +13,10 @@ _ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(_ROOT / "src"))
 
 from inference.cli import main  # noqa: E402
+from inference.console import use_utf8_console  # noqa: E402
+
+# ⚠️ 必须在 argparse 打印任何 `--help` 之前重配 —— 帮助文本里有 GBK 编不出的符号。
+use_utf8_console()
 
 if __name__ == "__main__":
     sys.exit(main())
