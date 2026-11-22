@@ -103,7 +103,15 @@ def evaluate(model: ModelSpec, backend_name: str, backend: dict[str, Any],
     #    数字是对的，但描述的事（无限期等待）不是真实系统做的事。
     max_wait = float(max_batch_wait_s)
 
+    # ⚠️ 定点迭代会反复落在**同一个**整数 batch 上（阻尼收敛后尤其明显），
+    #    而 `_service_at` 在本格内是 `b` 的纯函数 ⇒ 按 `b` 记忆化。
+    #    不做的话每个格要重算 10 次 prefill/decode 工作量（矩阵 1944 格）。
+    _memo: dict[int, tuple[float, float, float, Any, Any, Any]] = {}
+
     def _service_at(b: int) -> tuple[float, float, float, Any, Any, Any]:
+        hit = _memo.get(b)
+        if hit is not None:
+            return hit
         tp_, td_, wp_, wd_ = _prefill_decode(model, backend, quant, hw,
                                              b, context, prompt, wf)
         pre = tp_.seconds
@@ -111,7 +119,9 @@ def evaluate(model: ModelSpec, backend_name: str, backend: dict[str, Any],
         s = pre + output * tpot
         w = 0.0 if backend.get("continuous", False) else min(
             Q.static_batching_wait(b, arrival), max_wait)
-        return pre, tpot, s + w, tp_, td_, (wp_, wd_)
+        result = (pre, tpot, s + w, tp_, td_, (wp_, wd_))
+        _memo[b] = result
+        return result
 
     for _ in range(_FP_ITERS):
         _, _, S_eff, tp, td, wpwd = _service_at(max(1, int(round(eb))))
