@@ -10,7 +10,11 @@
 
 from __future__ import annotations
 
+import math
+
 _MASK64 = (1 << 64) - 1
+#: 53 位均匀量的最小正值 `2⁻⁵³`（`uniform()` 返回 0 时用它兜底）。
+_MIN_UNIFORM = 1.0 / 9007199254740992.0
 #: LCG 参数（Numerical Recipes 的 `MMIX` 变体：乘数与增量都是公开的固定常数）
 _A = 6364136223846793005
 _C = 1442695040888963407
@@ -29,18 +33,21 @@ class Rng:
         return self._s
 
     def uniform(self) -> float:
-        """(0, 1) 上的均匀量。
+        """`[0, 1)` 上的均匀量（53 位精度）。
 
-        ⚠️ 用 `u64 + 0.5` 而不是 `u64 / 2**64`：后者可能返回 0.0，
-        而 `log(0)` 是 `-inf` ⇒ 指数分布采样会给出 `inf` 的服务时间。
+        ⚠️ 值域是**左闭**的：`u == 0.0` 可能出现（概率 `2⁻⁵³`）。
+        依赖 `log(u)` 的调用方必须自己兜底（`exponential` 把 0 抬到
+        `2⁻⁵³`）—— 否则 `math.log(0.0)` 抛 `ValueError`，而这条路径
+        极难复现，正是「跑一万次都没事，线上偶尔炸」的那一类。
         """
         return (self.next_u64() >> 11) / 9007199254740992.0  # 2**53
 
     def exponential(self, rate: float) -> float:
-        """`Exp(rate)` 采样。"""
-        import math
-
-        return -math.log(self.uniform()) / rate
+        """`Exp(rate)` 采样（逆变换：`-ln(U)/rate`）。"""
+        u = self.uniform()
+        if u <= 0.0:
+            u = _MIN_UNIFORM
+        return -math.log(u) / rate
 
     def fork(self, tag: str) -> "Rng":
         """从 `tag` 派生一个独立流。
