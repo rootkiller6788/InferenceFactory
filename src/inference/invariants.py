@@ -901,11 +901,13 @@ def _c_time_keys(p, c, ms, hs):
     def walk(obj: Any, path: str, exempt: bool) -> None:
         if isinstance(obj, dict):
             for k, v in obj.items():
-                here = f"{path}.{k}" if path else str(k)
-                is_time = any(str(k).endswith(suf) for suf in _TIME_SUFFIXES)
-                if is_time:
-                    seen.add(str(k))
-                    if not exempt and str(k) not in _MODEL_TIME_KEYS:
+                key = str(k)
+                here = f"{path}.{key}" if path else key
+                # ⚠️ `str.endswith` 直接吃元组：原先对 4 个后缀逐个 `any(...)`，
+                #    在 1944 格的矩阵上会多做 ~37 万次函数调用。
+                if key.endswith(_TIME_SUFFIXES):
+                    seen.add(key)
+                    if not exempt and key not in _MODEL_TIME_KEYS:
                         bad.append(here)
                 walk(v, here, exempt)
         elif isinstance(obj, list):
