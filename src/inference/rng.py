@@ -49,6 +49,25 @@ class Rng:
             u = _MIN_UNIFORM
         return -math.log(u) / rate
 
+    def exponentials(self, n: int, rate: float) -> list[float]:
+        """批量采样 `n` 个 `Exp(rate)`，序列与逐个调用**逐位相同**。
+
+        ⚠️ 只为热路径：互校的 54 个模拟点 × 4000 请求 ⇒ 43 万次
+        `exponential` 调用，每次都要做 `uniform` / `next_u64` 的属性查找。
+        这里的循环保持**完全相同的**随机数取用顺序（先 `n` 个到达间隔、
+        再 `n` 个服务时长），所以产物逐位不变。
+        """
+        out: list[float] = []
+        append = out.append
+        next_u64 = self.next_u64
+        log = math.log
+        for _ in range(n):
+            u = (next_u64() >> 11) / 9007199254740992.0  # 2**53
+            if u <= 0.0:
+                u = _MIN_UNIFORM
+            append(-log(u) / rate)
+        return out
+
     def fork(self, tag: str) -> "Rng":
         """从 `tag` 派生一个独立流。
 

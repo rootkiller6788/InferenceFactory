@@ -99,12 +99,13 @@ def simulate(c: int, mu: float, lam: float, n_requests: int, seed: int,
                 "wq_mean": float("inf"), "wq_p99": float("inf")}
     rng = stream_for(tag, "mmc", seed=seed)
     # 到达时刻（累积指数间隔）与服务时长
+    # ⚠️ 批量采样：取数顺序与逐个 `exponential` 完全相同（先 λ 后 μ）。
     t = 0.0
     arrivals: list[float] = []
-    for _ in range(n_requests):
-        t += rng.exponential(lam)
+    for gap in rng.exponentials(n_requests, lam):
+        t += gap
         arrivals.append(t)
-    services = [rng.exponential(mu) for _ in range(n_requests)]
+    services = rng.exponentials(n_requests, mu)
 
     free: list[float] = [0.0] * c     # 每个服务台的空闲时刻（小根堆）
     heapq.heapify(free)
