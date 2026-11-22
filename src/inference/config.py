@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -244,6 +245,36 @@ def no_stale_config_keys(cfg: dict[str, Any],
     return bad
 
 
+#: 设计轴名与它们的**值类型**（`arrival` 是到达率，允许小数）。
+_AXES_REQUIRED: tuple[str, ...] = ("backend", "quant", "batch", "context", "arrival")
+
+
+def _check_axes(cfg: dict[str, Any]) -> None:
+    """轴的值必须能被枚举、能被算术 —— 否则会在流水线深处才炸。
+
+    ⚠️ 这里**不**校验取值范围是否「合理」（那是门槛/期望的事），只校验
+    **类型**：`batch = "8"` 或 `arrival = 0` 会让 `int(...)` / `ρ` 在矩阵
+    循环里抛错或算出无意义的值，而错误位置离配置十万八千里。
+    """
+    axes = cfg["axes"]
+    for axis in _AXES_REQUIRED:
+        if axis not in axes:
+            raise ConfigError(f"配置缺少设计轴 `{axis}`")
+    for axis in ("backend", "quant"):
+        for v in axes[axis]:
+            if not isinstance(v, str):
+                raise ConfigError(f"设计轴 `{axis}` 的取值必须是字符串，收到 {v!r}")
+    for axis in ("batch", "context"):
+        for v in axes[axis]:
+            if isinstance(v, bool) or not isinstance(v, int) or v <= 0:
+                raise ConfigError(f"设计轴 `{axis}` 的取值必须是正整数，收到 {v!r}")
+    for v in axes["arrival"]:
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            raise ConfigError(f"设计轴 `arrival` 的取值必须是数，收到 {v!r}")
+        if not math.isfinite(float(v)) or float(v) <= 0.0:
+            raise ConfigError(f"设计轴 `arrival` 的取值必须是有限正数，收到 {v!r}")
+
+
 def validate_config(cfg: dict[str, Any]) -> None:
     """结构性校验（缺键 / 类型 / 轴非空 / 后端引用完整）。"""
     for group in ("data", "workload", "axes", "backends", "quant", "queue",
@@ -253,6 +284,7 @@ def validate_config(cfg: dict[str, Any]) -> None:
     for axis, values in cfg["axes"].items():
         if not isinstance(values, list) or not values:
             raise ConfigError(f"设计轴 `{axis}` 必须是非空列表")
+    _check_axes(cfg)
     for b in cfg["axes"]["backend"]:
         if b not in cfg["backends"]:
             raise ConfigError(f"设计轴声明了后端 `{b}`，但 `backends` 里没有它")
@@ -290,7 +322,19 @@ def load_config(path: str | Path | None = None,
             p = Path(root) / p
         if not p.exists():
             raise ConfigError(f"配置文件不存在：{p}")
-        disk = json.loads(p.read_text(encoding="utf-8"))
+        try:
+            disk = json.loads(p.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            # ⚠️ 转成 ConfigError：CLI 的 `except ConfigError` 会给出 rc=2 和
+            #    一行可读信息，而不是一段 JSON 解析 traceback。
+            raise ConfigError(
+                f"配置文件不是合法 JSON：{p}（第 {exc.lineno} 行第 "
+                f"{exc.colno} 列：{exc.msg}）"
+            ) from exc
+        except OSError as exc:
+            raise ConfigError(f"读不了配置文件：{p}（{exc}）") from exc
+        if not isinstance(disk, dict):
+            raise ConfigError(f"配置文件顶层必须是对象：{p}")
         stale = no_stale_config_keys(disk)
         if stale:
             raise ConfigError(
